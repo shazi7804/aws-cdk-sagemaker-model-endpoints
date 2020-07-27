@@ -1,15 +1,42 @@
 # AWS CDK SageMaker Model Endpoint Deployment
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`AwsCdkSagemakerModelEndpointsStack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+This repository is create SageMaker model and invoke endpoint.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Requirements
 
-## Useful commands
+- Training Model
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+## Change your own
+
+- Change model data url, ecr repo and more.
+
+```
+# cdk.context.json
+{
+    "ecr_blazing_text_reponame": "<your_ecr_repo>",
+    "model_data_url": "<your_model_path>"
+}
+```
+
+## Deploy Stack
+
+```
+cdk diff
+cdk deploy
+```
+
+## Deploy with different AWS_PROFILE
+
+```
+cdk --profile another diff
+```
+
+## Deploy into a different AWS region
+
+```
+AWS_REGION=us-west-1 cdk diff
+```
+
+## Author
+
+@shazi7804
