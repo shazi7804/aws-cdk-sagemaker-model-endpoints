@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ML Pictionary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+    
+<body>
+    <div class="container">
+        <div class="row">
+            <h1>Game Night with ML!</h1>
+            <p>Draw a number in the box, and ML will guess the number.  Try a different algorithm for fun!</p>
+        </div>
+        <div class="row"><p> </p></div>
+        <div class="row">
+            <div class="col-sm-2">
+                <div style="border: solid 2px #666; width: 143px; height: 144px;">
+                    <canvas width="140" height="140"></canvas>
+                </div>
+            </div>
+            <div class="col-sm-10">
+                <div style="border: solid 2px #666; width: 253px; height: 144px;">
+                    <img src="/static/sloth.jpg" alt="sloth" height="140" width="249">
+                </div>
+            </div>
+        </div>
+        <div class="row"><p> </p></div>
+        <div class="row">
+            <div class="col-sm-2">
+                <button onclick="clear_value()">Clear</button>
+            </div>
+            <div class="col-sm-10">
+                <p>You drew:  </p><input id="actual" type="text" value="" align="left" size="3" border-0/>
+                <button onclick="save_values()">Save</button>
+            </div>
+        </div>
+        <div class="row"><p> </p></div>
+        <div class="row">
+            <div class="col-sm-12">
+                <input id="answer" type="text" value="" align="left" size="55" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="row"><p> </p></div>
+        <div>
+            <form action="">
+                <input type="radio" name="algorithm" value="tensorflow"> MNIST Tensorflow<br>
+            </form>
+        </div>
+    </div>
+</body>
+    
+<script type="text/Javascript">
+    var pixels = [];
+    for (var i = 0; i < 28*28; i++) pixels[i] = 0;
+    var click = 0;
+    
+    var radiobtns = document.getElementsByName("algorithm");
+    radiobtns[0].checked = true;
+
+    var canvas = document.querySelector("canvas");
+    canvas.addEventListener("mousemove", function(e){
+        if (e.buttons == 1) {
+            document.getElementById("answer").style.borderColor = "gray";
+            document.getElementById("actual").style.borderColor = "gray";
+            click = 1;
+            canvas.getContext("2d").fillStyle = "rgb(0,0,0)";
+            canvas.getContext("2d").fillRect(e.offsetX, e.offsetY, 8, 8);
+            x = Math.floor(e.offsetY * 0.2);
+            y = Math.floor(e.offsetX * 0.2) + 1;
+            for (var dy = 0; dy < 2; dy++){
+                for (var dx = 0; dx < 2; dx++){
+                    if ((x + dx < 28) && (y + dy < 28)){
+                        pixels[(y+dy)+(x+dx)*28] = 1;
+                    }
+                }
+            }
+        } else {
+            if (click == 1) set_value();
+            click = 0;
+        }
+    });
+
+    function clear_value(){
+        canvas.getContext("2d").fillStyle = "rgb(255,255,255)";
+        canvas.getContext("2d").fillRect(0, 0, 140, 140);
+        for (var i = 0; i < 28*28; i++) pixels[i] = 0;
+        document.getElementById("answer").value = "";
+        document.getElementById("actual").value = "";
+        document.getElementById("answer").style.borderColor = "gray";
+        document.getElementById("actual").style.borderColor = "gray";
+    }
+    
+    function save_values(){
+        
+        var actual=document.getElementById("actual").value;
+        var radiobtns = document.getElementsByName("algorithm");
+        
+        var result = "[["
+        for (var i = 0; i < 28; i++) {
+            result += "["
+            for (var j = 0; j < 28; j++) {
+                result += pixels [i * 28 + j]
+                if (j < 27) {
+                    result += ", "
+                }
+            }
+            result += "]"
+            if (i < 27) {
+                result += ", "
+            }
+        }
+        result += "]]"
+        
+        
+        if (radiobtns[0].checked == true){
+            var algorithm="mxnet"
+            var guess=document.getElementById("answer").value;
+            guess=guess[21];
+        }
+        else if (radiobtns[1].checked == true){
+            var algorithm="tensorflow";
+            var guess=document.getElementById("answer").value;
+            guess=guess[20];
+        }
+        else {
+            var algorithm="homeschool";
+            var guess=document.getElementById("answer").value;
+            guess=guess[20];
+        }
+        
+        if (guess == "" || actual == "") {
+            // Make red
+            var stuff = ""
+            document.getElementById("answer").style.borderColor = "red";
+            document.getElementById("actual").style.borderColor = "red";
+        }
+        else {
+            $.get("/save", { 'actual' : actual, 'guess': guess, 'algorithm': algorithm, 'image': result }, function(data, status, xhr){
+                response = data;
+                })
+            clear_value();
+        }
+
+    }
+
+    function set_value(){
+        
+        var resultxg="[["
+        var result = "[["
+        for (var i = 0; i < 28; i++) {
+            result += "["
+            for (var j = 0; j < 28; j++) {
+                result += pixels [i * 28 + j]
+                resultxg += pixels [i * 28 + j]
+                
+                if (j < 27) {
+                    result += ", "
+                    resultxg += ","
+                }
+            }
+            result += "]"
+            if (i < 27) {
+                result += ", "
+                resultxg += ","
+            }
+        }
+        result += "]]"
+        resultxg += "]]"
+        
+        var radiobtns = document.getElementsByName("algorithm");
+        if (radiobtns[0].checked == true)
+            {
+                $.get("/mxnet", { 'image' : result }, function(data, status, xhr){
+                document.getElementById("answer").value = data;
+                })
+            }
+        else if (radiobtns[1].checked == true)
+            {
+                $.get("/tensor", { 'image' : result }, function(data, status, xhr){
+                document.getElementById("answer").value = data;
+                })
+            }
+        else 
+            {
+                $.get("/pytorch", { 'image' : result }, function(data, status, xhr){
+                document.getElementById("answer").value = data;
+                })
+            }
+    }
+
+</script>
+</html>

@@ -1,0 +1,9 @@
+{
+    "ecr_blazing_text_reponame": "811284229777.dkr.ecr.us-east-1.amazonaws.com/blazingtext:latest",
+    "model_endpoint_name": "demoEndpoint",
+    "model_data_url": "s3://sagemaker-models-demo-scottliao-026625820024/ebm-sample-model.tar.gz",
+    "model_initial_varian_name": "demo-name-1",
+    "model_instance_type": "ml.t2.large",
+    "model_instance_count": 1,
+    "model_initial_varian_weight": 1
+}
