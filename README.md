@@ -26,13 +26,13 @@ cdk diff
 cdk deploy
 ```
 
-## Deploy with different AWS_PROFILE
+- Deploy with different AWS_PROFILE
 
 ```
 cdk --profile another diff
 ```
 
-## Deploy into a different AWS region
+- Deploy into a different AWS region
 
 ```
 AWS_REGION=us-west-1 cdk diff
