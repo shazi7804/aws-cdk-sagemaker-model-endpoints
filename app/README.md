@@ -27,7 +27,3 @@ response `score: 0.2800988256931305`
   "statusCode": 200
 }
 ```
-
-## Author
-
-@shazi7804

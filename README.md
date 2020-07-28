@@ -21,6 +21,7 @@ This repository is create SageMaker model and invoke endpoint.
 ## Deploy Stack
 
 ```
+npm install
 cdk diff
 cdk deploy
 ```
